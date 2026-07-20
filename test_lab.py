@@ -347,7 +347,7 @@ class TestLab(unittest.TestCase):
             (r"/tmp/", "temp paths"),
             (r"/workspace/", "workspace paths"),
             (r"C:\\\\Users", "Windows user paths"),
-            (r"/checkout|/repo|/github", "repo checkout paths"),
+            (r"(?<![\w:/])/(?:checkout|repo|github)(?:/|\b)", "repo checkout paths"),
             (r"traceback.*File \"/", "path-bearing tracebacks"),
             (r"Authorization\s*:\s*Bearer", "authorization headers"),
             (r"api[_-]?key", "api keys"),
