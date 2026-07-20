@@ -4,6 +4,8 @@ __pycache__/
 *.npz
 *.pkl
 *.pickle
-*evidence*.tmp
-*comparison*.tmp
-worker_scratch/
+*hackernews_raw*
+*evidence_tmp*
+*comparison*
+*worker_scratch*
+.DS_Store

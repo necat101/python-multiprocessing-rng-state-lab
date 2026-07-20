@@ -1,18 +1,82 @@
 # python-multiprocessing-rng-state-lab
 
-A small deterministic Python correctness lab about NumPy pseudorandom state, multiprocessing start methods, fork state inheritance, repeated explicit seeds, per-worker seed derivation, numpy.random.Generator, numpy.random.SeedSequence.spawn, worker-result ordering, and reproducibility across repeated runs.
+Deterministic correctness lab for NumPy PRNG state inheritance across Python multiprocessing start methods (fork / spawn).
 
-This is a correctness and evidence lab. It is not a machine-learning benchmark, a randomness certification, a statistical-quality test, a security test, or a claim about the current behavior of every PyTorch version.
+This is a **correctness and evidence lab**, not an ML benchmark, randomness certification, statistical-quality test, or security test.
 
-No model training, no GPU, no pip installs. Python stdlib + NumPy only.
+- Root seed: `26767441`
+- Workers: 4 (ids 0,1,2,3)
+- Draws per worker: 6 integers in `[0, 1000000)`
+- No model training, no GPU, no downloads, no pip installs
+- Python stdlib + NumPy only (PyTorch inspected for version if present, not required)
 
-## Lab parameters
+## Hacker News thread access
 
-- Root seed: 26767441
-- Workers: 0, 1, 2, 3
-- Draws per worker: 6
-- Interval: [0, 1000000)
-- Results sorted by worker_id before recording
+```
+hackernews get-item --id 26767441
+```
+
+Relevant public thread evidence was captured before the discussion summary was written. See `hn_thread_evidence.md` and `hn_comments_sanitized.json`.
+
+## Discussion summary (HN #26767441)
+
+The thread discusses "A common mistake when NumPy's RNG is used with PyTorch" (tanelp.github.io, 2021).
+
+Commenter summary:
+
+- **_coveredInBees**: worker seeding is easy to get wrong even in official tutorials; described using a custom `worker_init_fn` (`np.random.seed(torch.initial_seed() // 2**32 + id)`) and making it the default for all trainer instances.
+- **nurpax**: pointed to the worker-specific seed exposed by PyTorch: `torch.utils.data.get_worker_info().seed`, suggested `worker_init_fn=lambda id: np.random.seed(torch.utils.data.get_worker_info().seed)`.
+- **shoyer**: argued against hidden mutable global RNG state and preferred explicit generator state (`numpy.random.Generator`); JAX goes further with pure functions. Explicit state avoids spooky action-at-a-distance.
+- **warsheep**: replied that an explicitly created generator can still have its state copied by fork – explicit ownership helps reasoning, but does not magically avoid fork-copy.
+- **acdha**: described fork as an optimization that makes setup such as RNG initialization easy to misunderstand and easy for tutorials to omit, especially when seed/fork are far apart in non-trivial programs.
+- **OskarS**: said some programmers mentally treat pseudorandom values as fresh external randomness ("give me random numbers"), not as a deterministic seeded sequence – they think they're reading `/dev/random`, not `rand()`.
+- **timzaman**: warned that python, numpy, torch, and distributed workers may each need deliberate seeding; also noted multi-GPU data-parallel seed duplication.
+- **jeeeb**: said ordinary unit tests may miss a problem that appears only with worker processes; recommended logging input samples to TensorBoard.
+- **_delirium**: distinguished fork-based behavior (children inherit RNG state, produce identical sequences) from Windows spawn behavior (fresh interpreter).
+- **ynik**: noted that macOS changed its multiprocessing default (Python 3.8+, spawn on macOS), favored explicit cross-platform start-method choices (`multiprocessing.set_start_method('spawn')`).
+- **rurban**: discussed reseeding workers while preserving reproducibility; noted forked/threaded RNGs keeping the same seed is a well-known trap; good RNGs have an advance function.
+- **anon_tor_12345**: challenged the article's clickbait framing and its unsupported "over 95%" prevalence claim; noted no actual stats, just hand-waving, and that PyTorch exposes `worker_init_fn`.
+
+## What the thread does NOT prove
+
+- that every NumPy program duplicates random sequences
+- that every PyTorch DataLoader currently has the historical behavior described by the 2021 article
+- that explicit generator objects cannot be copied
+- that spawn automatically makes poorly seeded code correct
+- that different sequences are statistically independent merely because they differ
+- that repeated augmentations necessarily damage model quality
+- that one deterministic multiprocessing experiment measures production training behavior
+- that the article's repository-wide percentage has been independently reproduced
+
+## Evidence categories
+
+1. **What the linked article claimed in 2021**: RNG state duplication via fork in PyTorch DataLoader workers can lead to identical augmentations; claimed "over 95%" prevalence across open-source ML projects (attributed to the article – this repository does **not** reproduce the article's GitHub-scale analysis).
+
+2. **What Hacker News commenters argued**: see Discussion summary above.
+
+3. **What current official Python, NumPy, and PyTorch documentation says**:
+   - Python `multiprocessing`: https://docs.python.org/3/library/multiprocessing.html – fork copies process state, spawn starts fresh interpreter
+   - Python `random`: https://docs.python.org/3/library/random.html
+   - NumPy random: https://numpy.org/doc/stable/reference/random/index.html
+   - NumPy Generator: https://numpy.org/doc/stable/reference/random/generator.html
+   - NumPy parallel RNG: https://numpy.org/doc/stable/reference/random/parallel.html
+   - NumPy SeedSequence: https://numpy.org/doc/stable/reference/random/bit_generators/generated/numpy.random.SeedSequence.html
+   - PyTorch data-loading: https://docs.pytorch.org/docs/stable/data.html
+   - PyTorch reproducibility: https://docs.pytorch.org/docs/stable/notes/randomness.html
+
+4. **What the local installed environment reported**: see `observations.json`, `RESULTS.md` – Python 3.12.3, NumPy 2.4.6, PyTorch not installed, start methods: fork, forkserver, spawn.
+
+5. **What the deterministic lab directly observed**:
+   - Serial same-seed: duplicate sequences (expected)
+   - Fork legacy RNG: duplicate sequences (expected)
+   - Fork generator copy: duplicate sequences (expected)
+   - Fork worker_id reseed: distinct sequences, reproducible
+   - Fork SeedSequence children: distinct sequences, reproducible
+   - Spawn same seed: duplicate sequences (expected)
+   - Spawn SeedSequence children: distinct sequences, reproducible
+   - Spawn repeatability: pass
+
+6. **What the lab did NOT test**: ML training, RNG statistical quality, security, GPU/accelerator behavior, full PyTorch DataLoader stack, production pipeline validation, cross-version reproducibility, statistical independence proofs, model accuracy impact.
 
 ## Cases
 
@@ -27,92 +91,14 @@ No model training, no GPU, no pip installs. Python stdlib + NumPy only.
 9. `spawn_repeatability_across_runs_marker`
 10. `no_global_rng_or_ml_validity_claim_marker`
 
-Each case implements four methods: `inspect_environment`, `execute_workers`, `verify_sequence_relation`, `reproducibility_context_observation` — 40 rows total.
+Each case tested with 4 methods: `inspect_environment`, `execute_workers`, `verify_sequence_relation`, `reproducibility_context_observation` → 40 rows total.
 
-## Results summary
+## Reproduce
 
-See [RESULTS.md](RESULTS.md) for full classification counts, sequence observations, and disclaimers.
-
-Duplicate streams observed (expected): serial same-seed, fork legacy global state copy, fork generator object copy, spawn same-seed.
-
-Distinct streams observed (expected): fork worker-id reseed, fork SeedSequence children, spawn SeedSequence children.
-
-Repeatability confirmed per worker_id across repeated runs.
-
-## Hacker News thread access
-
-Relevant public thread evidence was captured before the discussion summary was written.
-
-Command:
-
-```
-hackernews get-item --id 26767441
-```
-
-Thread: https://news.ycombinator.com/item?id=26767441  
-Linked article: https://tanelp.github.io/posts/a-bug-that-plagues-thousands-of-open-source-ml-projects/
-
-Evidence files: [hn_thread_evidence.md](hn_thread_evidence.md), [hn_comments_sanitized.json](hn_comments_sanitized.json)
-
-### What the linked article claimed in 2021
-
-The article described a NumPy / PyTorch DataLoader interaction where forked worker processes inherit identical RNG state, leading to duplicated data augmentations across workers. It claimed the issue affected “thousands of open source ML projects” and included a GitHub-wide prevalence estimate (“over 95%”). This repository attributes that percentage to the article and does **not** reproduce the article’s GitHub-scale analysis.
-
-### What Hacker News commenters argued
-
-- **_coveredInBees**: worker seeding is easy to get wrong even in official tutorials; described using a custom `worker_init_fn` (`worker_init_fn=lambda id: np.random.seed(torch.initial_seed() // 2**32 + id)`) as a default in their PyTorch training framework.
-- **nurpax**: pointed to the worker-specific seed exposed by PyTorch (`torch.utils.data.get_worker_info().seed`) as a basis for `worker_init_fn`.
-- **shoyer**: argued against hidden mutable global RNG state; preferred explicit generator state (`numpy.random.Generator`); JAX-style pure functions avoid “action at a distance” and improve reproducibility.
-- **warsheep**: replied that an explicitly created generator can still have its state copied by fork; the fix is reseeding after fork or using multiprocess-aware RNG APIs.
-- **acdha**: described fork as an optimization that makes setup such as RNG initialization easy to misunderstand and easy for tutorials to omit; boilerplate gets ignored once code is non-trivial.
-- **OskarS**: said some programmers mentally treat pseudorandom values as fresh external randomness (“give me random numbers”), not a seeded pseudo-random sequence, so identical sequences after fork are surprising.
-- **timzaman**: warned that Python, NumPy, Torch, and distributed workers may each need deliberate seeding; multi-GPU data-parallel workers need distinct seeds too.
-- **jeeeb**: said ordinary unit tests may miss a problem that appears only with worker processes; also noted DataLoader `num_workers != 0` is required to trigger.
-- **_delirium**: distinguished fork-based behavior from Windows spawn behavior; NumPy auto-seeds from OS entropy by default, the fork-inheritance case is the subtle one; PyTorch DataLoaders fork transparently.
-- **ynik**: noted that macOS changed its multiprocessing default (Python 3.8+ uses spawn on macOS); favored explicit cross-platform start-method choices (`multiprocessing.set_start_method('spawn')`).
-- **rurban**: discussed reseeding workers while preserving reproducibility; for splitting sequential ranges, a good RNG typically has an advance function.
-- **anon_tor_12345**: challenged the article’s clickbait framing and its unsupported “over 95%” prevalence claim; argued the issue is “using fork without understanding fork”, not NumPy-specific; noted PyTorch exposes `worker_init_fn` and questioned the lack of statistics backing the GitHub-wide claim.
-
-### What current official documentation says
-
-- Python multiprocessing: https://docs.python.org/3/library/multiprocessing.html — documents `fork`, `spawn`, `forkserver` start methods; `fork` copies process state including RNG state.
-- Python random: https://docs.python.org/3/library/random.html
-- NumPy random: https://numpy.org/doc/stable/reference/random/index.html
-- NumPy Generator: https://numpy.org/doc/stable/reference/random/generator.html
-- NumPy parallel random generation: https://numpy.org/doc/stable/reference/random/parallel.html
-- NumPy SeedSequence: https://numpy.org/doc/stable/reference/random/bit_generators/generated/numpy.random.SeedSequence.html — `SeedSequence.spawn()` creates child streams intended for parallel use.
-- PyTorch data loading: https://docs.pytorch.org/docs/stable/data.html
-- PyTorch reproducibility: https://docs.pytorch.org/docs/stable/notes/randomness.html
-
-### What the local installed environment reported
-
-See RESULTS.md — Python 3.12.3, NumPy 2.4.6, PyTorch not installed, start methods: fork, spawn, forkserver.
-
-We do not claim the installed versions are current or universally deployed.
-
-### What the deterministic lab directly observed
-
-- Constructing multiple `numpy.random.Generator` instances from the same explicit seed reproduces the same stream by design.
-- Forked children inheriting a legacy `RandomState` or a `Generator` object produced identical sequences across 4 workers.
-- Per-worker seed derivation via `SeedSequence([ROOT_SEED, worker_id])` produced pairwise distinct sequences, reproducible per worker_id.
-- `SeedSequence.spawn(4)` child streams produced pairwise distinct sequences (fork and spawn), reproducible per worker_id.
-- Spawned children given the same explicit seed produced identical sequences.
-- Two consecutive spawn-SeedSequence runs produced identical per-worker sequences.
-
-All observations are for 4 workers, 6 integers each, seed 26767441, on the tested platform only.
-
-### What the lab did NOT test
-
-This repository does not prove that every NumPy or PyTorch program has duplicated RNG streams, that the historical PyTorch behavior remains unchanged today, that fork is the default everywhere, that spawn repairs repeated explicit seeds, that NumPy generators are automatically independent after copying, that distinct short sequences are statistically independent, that SeedSequence eliminates every collision risk, that a six-number sample tests RNG quality, that duplicated augmentation necessarily changes model accuracy, that different augmentations improve model quality, that a random seed alone guarantees full experimental reproducibility, that one local multiprocessing run validates a production data pipeline, or that the lab is machine-learning validated, statistically certified, universally portable, or production-ready.
-
-## Running
-
-```
+```bash
 python run_lab.py
 python -m unittest -v
 ```
-
-Generated artifacts: `observations.json`, `observations.csv`, `RESULTS.md`
 
 ## License
 
