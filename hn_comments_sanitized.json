@@ -1,0 +1,434 @@
+[
+  {
+    "id": 26767441,
+    "by": "sunils34",
+    "time": 1618114490,
+    "type": "story",
+    "title": "A common mistake when NumPy\u2019s RNG with PyTorch",
+    "url": "https://tanelp.github.io/posts/a-bug-that-plagues-thousands-of-open-source-ml-projects/"
+  },
+  {
+    "id": 26767770,
+    "by": "unityByFreedom",
+    "parent": 26767441,
+    "time": 1618120278,
+    "type": "comment",
+    "text": "Great catch!<p>&gt; I downloaded and analysed over a hundred thousand repositories from GitHub that import PyTorch. I kept projects that use NumPy\u2019s random number generator with multi-process data loading. Out of these, over 95% of the repositories are plagued by this problem. It\u2019s inside PyTorch\u2019s official tutorial, OpenAI\u2019s code, NVIDIA\u2019s projects, etc. [1]<p>[1] <a href=\"https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch&#x2F;issues&#x2F;5059\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch&#x2F;issues&#x2F;5059</a>"
+  },
+  {
+    "id": 26767780,
+    "by": "anon_tor_12345",
+    "parent": 26767441,
+    "time": 1618120416,
+    "type": "comment",
+    "text": "This is probably because I never read these kinds of blogposts but this is one of the most flagrantly clickbait titles I&#x27;ve ever seen. Like the article doesn&#x27;t even suggest ditching numpy in favor of jax or some kind of other hot take (which would at least warrant such a bombastic title) it literally just presents one instance in which you <i>might</i> be making a mistake when using numpy&#x27;s rng (not even something more unique to numpy). And the PyTorch team is aware of this and hence exposes `worker_init_fn`. So the title should actually be &quot;Using fork without understanding fork? You might be making a mistake.&quot;"
+  },
+  {
+    "id": 26767818,
+    "by": "gleenn",
+    "parent": 26767780,
+    "time": 1618120985,
+    "type": "comment",
+    "text": "OP said they scanned and found this problem in thousands of projects including some ones which are probably copied heavily as examples like from Nvidia. While the post might be a little strong, at least they back up their statement that many others are actually suffering this problem"
+  },
+  {
+    "id": 26767844,
+    "by": "jandrese",
+    "parent": 26767441,
+    "time": 1618121273,
+    "type": "comment",
+    "text": "Forgetting to seed your RNG is a really classic bug.  IMHO RNGs should auto seed unless explicitly set not to, but since the opposite behaviour was baked into C so many years ago it&#x27;s kind of the default.  The worst part is how easy a bug this is to miss unless you&#x27;re explicitly printing out the first set of random numbers for some strange reason."
+  },
+  {
+    "id": 26767849,
+    "by": "wokwokwok",
+    "parent": 26767780,
+    "time": 1618121318,
+    "type": "comment",
+    "text": "I suppose...<p>1) This is an issue from 2018 (<a href=\"https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch&#x2F;issues&#x2F;5059\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch&#x2F;issues&#x2F;5059</a>), which links to the closed numpy issue (<a href=\"https:&#x2F;&#x2F;github.com&#x2F;numpy&#x2F;numpy&#x2F;issues&#x2F;9248\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;numpy&#x2F;numpy&#x2F;issues&#x2F;9248</a>) which just says: seed your random numbers folk.<p>2) The documentation in pytorch covers this (<a href=\"https:&#x2F;&#x2F;pytorch.org&#x2F;docs&#x2F;stable&#x2F;data.html#randomness-in-multi-process-data-loading\" rel=\"nofollow\">https:&#x2F;&#x2F;pytorch.org&#x2F;docs&#x2F;stable&#x2F;data.html#randomness-in-mult...</a>), but it&#x27;s not really highlighted specifically in, eg. tutorials. (but it is in the FAQ <a href=\"https:&#x2F;&#x2F;pytorch.org&#x2F;docs&#x2F;stable&#x2F;notes&#x2F;faq.html#dataloader-workers-random-seed\" rel=\"nofollow\">https:&#x2F;&#x2F;pytorch.org&#x2F;docs&#x2F;stable&#x2F;notes&#x2F;faq.html#dataloader-wo...</a>)<p>3) It doesn&#x27;t affect windows, which uses spawn instead of fork.<p>4) To quote the author:<p>&gt; I downloaded and analysed over a hundred thousand repositories from GitHub that import PyTorch. I kept projects that use NumPy\u2019s random number generator with multi-process data loading. Out of these, over 95% of the repositories are plagued by this problem.<p>^ No actual stats, just some vague hand waving; this just seems like nonsense.<p>So, I suppose... there&#x27;s some truth to it being a documentation issue, but I guess the title + (1-3) kind of say to me: OP thought they discovered something significant... turns out, they didn&#x27;t.<p>Oh well, spin it into some page views."
+  },
+  {
+    "id": 26767856,
+    "by": "anon_tor_12345",
+    "parent": 26767849,
+    "time": 1618121454,
+    "type": "comment",
+    "text": "&gt;No actual stats, just some vague hand waving; this just seems like nonsense.<p>i had exactly the same thought - if they&#x27;d actually crawled github they&#x27;d have some nice plots to back up the claim."
+  },
+  {
+    "id": 26767922,
+    "by": "_coveredInBees",
+    "parent": 26767441,
+    "time": 1618122314,
+    "type": "comment",
+    "text": "Yeah, I&#x27;d run into this 2 years ago and ended up also reporting an issue on the Centernet repo [1]<p>The solution I have in that issue adapts from the very helpful discussions in the original Pytorch issue [2]<p>`worker_init_fn=lambda id: np.random.seed(torch.initial_seed() &#x2F;&#x2F; 2*32 + id)`<p>I will admit that this is *very* easy to mess up as evidenced by the fact that examples in the official tutorials for Pytorch and other well known code-bases suffer from it. In the Pytorch training framework I&#x27;ve helped develop at work, we&#x27;ve implemented a custom `worker_init_fn` as outlined in [1] that is the default for all &quot;trainer&quot; instances who are responsible for instantiating DataLoaders in 99% of our training runs.<p>Also, as an aside, Holy Clickbaity title Batman! Maybe I should have blogged about this 2 years ago. Heck, every 6 months or so, I think that, and then I realize that I&#x27;d rather spend time with my kids and on my hobbies when I&#x27;m not working on interesting ML stuff and&#x2F;or coding. An added side benefit is not having to worry about making idiotic clickbaity titles like this to farm karma, or provide high-quality unpaid labor for Medium in order for my efforts to be actually seen by people. But it could also just be that I&#x27;m lazy :-)<p>[1] <a href=\"https:&#x2F;&#x2F;github.com&#x2F;xingyizhou&#x2F;CenterNet&#x2F;issues&#x2F;233\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;xingyizhou&#x2F;CenterNet&#x2F;issues&#x2F;233</a><p>[2] <a href=\"https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch&#x2F;issues&#x2F;5059\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;pytorch&#x2F;pytorch&#x2F;issues&#x2F;5059</a>"
+  },
+  {
+    "id": 26767923,
+    "by": "ummonk",
+    "parent": 26767441,
+    "time": 1618122326,
+    "type": "comment",
+    "text": "&quot;You&#x27;re making a mistake&quot; sounds like one shouldn&#x27;t use PyTorch and NumPy together, when the actual message is &quot;there might be a mistake in your code&quot;."
+  },
+  {
+    "id": 26767928,
+    "by": "_delirium",
+    "parent": 26767844,
+    "time": 1618122353,
+    "type": "comment",
+    "text": "NumPy does auto-seed the RNG if you don&#x27;t pass a seed yourself, using platform-specific code to pull some entropy from the OS. So that common case is handled reasonably well, unlike with C. In fact if you want exactly reproducible results (e.g. in testcases), you have to seed with a known seed, to avoid that default behavior.<p>The issue here is a little more subtle: if you fork 10 copies of your Python process, all 10 inherit the current RNG state, and will thereafter produce identical random number sequences. If you were manually forking, you might guess that was a potential problem, and re-seed the RNGs after forking. But PyTorch&#x27;s data loaders fork a bunch of processes to do things in parallel, so users might not realize that they&#x27;re using duplicate copies of their RNG state."
+  },
+  {
+    "id": 26767957,
+    "by": "jeeeb",
+    "parent": 26767441,
+    "time": 1618122733,
+    "type": "comment",
+    "text": "I always randomly log a sample of my inputs to TendorBoard to manually review what my training data <i>actually</i> looks like and (hopefully) pick up on bugs like these. Similarly I find logging high loss inputs very informative.<p>Coincidentally I find this article timely as I was recently reviewing PyTorch DataLoader docs regarding random number generator seeding. It\u2019s the kind of thing unit test don\u2019t pick up since it only occurs when you use separate worker processes."
+  },
+  {
+    "id": 26767982,
+    "by": "nxpnsv",
+    "parent": 26767441,
+    "time": 1618123048,
+    "type": "comment",
+    "text": "So click baity. A proper title would be, be careful when using random numbers and multi processing..."
+  },
+  {
+    "id": 26768040,
+    "by": "coolreader18",
+    "parent": 26767780,
+    "time": 1618123671,
+    "type": "comment",
+    "text": "Maybe the intent is for it to be read as &quot;If you&#x27;re using pytorch and numpy, it&#x27;s _very_ likely you&#x27;re making this mistake&quot;, but the effect is still that the headline is clickbait"
+  },
+  {
+    "id": 26768093,
+    "by": "shoyer",
+    "parent": 26767441,
+    "time": 1618124358,
+    "type": "comment",
+    "text": "This post is yet another example of why you should never use APIs for random number generation that rely upon and mutate hidden global state, like the functions in numpy.random. Instead, use APIs that explicitly deal with RNG state, e.g., by calling methods on an explicitly created numpy.random.Generator object. JAX takes this one step further: there are no mutable RNG objects at all, and the users has to explicitly manipulate RNG state with pure functions.<p>It\u2019s a little annoying to have to set and pass RNG state explicitly, but on the plus side you never hit these sorts of issues. Your code will also be completely reproducible, without any chance of spooky \u201caction at a distance.\u201d Once you\u2019ve been burned by this a few times, you\u2019ll never go back.<p>You might think that explicitly seeding the global RNG would solve reproducibility issues, but it really doesn\u2019t. If you call into any code you didn\u2019t write, it might also be using the same global RNG."
+  },
+  {
+    "id": 26768121,
+    "by": "phonebucket",
+    "parent": 26767844,
+    "time": 1618124668,
+    "type": "comment",
+    "text": "I\u2019m of the opposite opinion and would get away from all auto RNG seeding:<p>1) this will help reproducibility a great deal, which is a pain so often.<p>2) forcing users to actually understand the seeding of RNGs from the point that they are novice programmers could help allay bugs of the sort seen in this post, which I believe stems from having too much faith that RNGs will simply work out of the box as substitutions for \u2018real\u2019 random variables."
+  },
+  {
+    "id": 26768161,
+    "by": "unityByFreedom",
+    "parent": 26767849,
+    "time": 1618125041,
+    "type": "comment",
+    "text": "Better title? <i>Over 95% of GitHub repos using NumPy and PyTorch aren&#x27;t getting the random numbers they think they are.</i>"
+  },
+  {
+    "id": 26768308,
+    "by": "sdfhbdf",
+    "parent": 26768161,
+    "time": 1618126606,
+    "type": "comment",
+    "text": "Probably over the HN Title character limit."
+  },
+  {
+    "id": 26768326,
+    "by": "jeeeb",
+    "parent": 26767928,
+    "time": 1618126760,
+    "type": "comment",
+    "text": "It\u2019s even slightly more subtle than that.<p>Python multiprocessing doesn\u2019t use fork on Windows. It starts a new process and so shouldn\u2019t be affected by this.<p>So to trigger this you need to have num_processes != 0 on your DataLoader and be running on a non-Windows platform."
+  },
+  {
+    "id": 26768450,
+    "by": "rlanday",
+    "parent": 26767982,
+    "time": 1618128129,
+    "type": "comment",
+    "text": "My initial reaction was, \u201cit can\u2019t possibly be as big as the mistake you\u2019re making if you\u2019re using TensorFlow!\u201d"
+  },
+  {
+    "id": 26768504,
+    "by": "Nimitz14",
+    "parent": 26767441,
+    "time": 1618128726,
+    "type": "comment",
+    "text": "Oh wow, I&#x27;ve definitely done this mistake without realizing it..."
+  },
+  {
+    "id": 26768543,
+    "by": "nxpnsv",
+    "parent": 26768450,
+    "time": 1618129303,
+    "type": "comment",
+    "text": "Certainly if you use it without understanding how to use a random number generator... but that is not really a fault in numpy OR TensorFlow..."
+  },
+  {
+    "id": 26768718,
+    "by": "0-_-0",
+    "parent": 26768121,
+    "time": 1618131700,
+    "type": "comment",
+    "text": "Indeed. Almost every time (like now) when you think you need a random number, you actually need a low discrepancy sequence."
+  },
+  {
+    "id": 26768781,
+    "by": "formerly_proven",
+    "parent": 26767441,
+    "time": 1618132358,
+    "type": "comment",
+    "text": "Python has os.register_at_fork nowadays, so why\u2018d still have this kind of behavior? Not reseeding after fork has been a footgun for almost as long as fork exists."
+  },
+  {
+    "id": 26768929,
+    "by": "timzaman",
+    "parent": 26767441,
+    "time": 1618133854,
+    "type": "comment",
+    "text": "Iirc the bug Karpathy mentioned in his tweet was actually due to the seed being the same across multigpu data parallel workers! You need to account for this too. So the author hasnt solved it.<p>I know this bc I fixed the bug. And probably caused it. Hehe.<p>Also you dont just want to set ur numpy seed but also the native python one and the torch one."
+  },
+  {
+    "id": 26769099,
+    "by": "warsheep",
+    "parent": 26768093,
+    "time": 1618135713,
+    "type": "comment",
+    "text": "The solution you suggest is irrelevant to the issue mentioned in the article. Even if you use np.random.RandomState, or any other &quot;explicit RNG state&quot;, that state will still be copied in the fork() call.<p>The post just stresses that one should be careful when using random states and multiprocessing, so you should either reseed after forking or using multiprocess&#x2F;multithread-aware RNG API."
+  },
+  {
+    "id": 26769116,
+    "by": "TruthWillHurt",
+    "parent": 26767780,
+    "time": 1618135904,
+    "type": "comment",
+    "text": "&quot;I downloaded over a hundred thousand repositories from GitHub that import PyTorch... Out of these, over 95% of the repositories are plagued by this problem.&quot;<p>Title seems pretty accurate to me!"
+  },
+  {
+    "id": 26769281,
+    "by": "nemetroid",
+    "parent": 26769099,
+    "time": 1618137631,
+    "type": "comment",
+    "text": "I believe the point is that the error will be more obvious if the state is passed around explicitly."
+  },
+  {
+    "id": 26769349,
+    "by": "Too",
+    "parent": 26767441,
+    "time": 1618138372,
+    "type": "comment",
+    "text": ".NET has a similar pitfall, but not due to forking but rather that the Random() default seed is based on the system clock. So starting several threads constructing new Random objects with the hope that they are unique might in fact give you same RNG sequences."
+  },
+  {
+    "id": 26769504,
+    "by": "shmel",
+    "parent": 26768326,
+    "time": 1618140334,
+    "type": "comment",
+    "text": "I get the desire to be pedantic, but does anyone at all train DL models on Windows? (barring toy projects for fun and perhaps debugging) The same can be said about num_workers &gt; 0. You _have to_ fork worker threads unless you train something super tiny like MNIST and you load the whole dataset on GPU."
+  },
+  {
+    "id": 26769575,
+    "by": "etiam",
+    "parent": 26767441,
+    "time": 1618141103,
+    "type": "comment",
+    "text": "Would normally refrain from upvoting this on account of the title, but the actual topic was important enough that I think it can be worth an exception."
+  },
+  {
+    "id": 26769648,
+    "by": "unityByFreedom",
+    "parent": 26768308,
+    "time": 1618142039,
+    "type": "comment",
+    "text": "<i>95% of GitHub repos using NumPy&#x2F;PyTorch don&#x27;t get the randomness they intended.</i>"
+  },
+  {
+    "id": 26769726,
+    "by": "nerdponx",
+    "parent": 26768040,
+    "time": 1618142896,
+    "type": "comment",
+    "text": "It&#x27;s so obviously clickbait that I wonder if it&#x27;s meant to be tongue-in-cheek."
+  },
+  {
+    "id": 26770158,
+    "by": "acdha",
+    "parent": 26769281,
+    "time": 1618147158,
+    "type": "comment",
+    "text": "Possibly but this is the kind of boilerplate which people tend to ignore, especially when a program is non-trivial. It\u2019s really easy to notice if you\u2019re doing something like `seed_rng(); fork();` but once there\u2019s distance and more than one thing being passed around I\u2019d be surprised if you didn\u2019t find the same pattern, perhaps a bit less common.<p>Fundamentally, there two problems: fork() is a performance trick to try to do setup only once and seeding an RNG is a type of setup which isn\u2019t intuitively obvious can\u2019t be optimized that way; and if most people learn from a tutorial or quick start this is exactly the kind of important but non core issue people omit or ignore in that context."
+  },
+  {
+    "id": 26770285,
+    "by": "qd6pwu4",
+    "parent": 26767441,
+    "time": 1618148305,
+    "type": "comment",
+    "text": "I notice that the web page of this article is beautifully justified to two sides instead of left alignment, and there is hyphen in breaking lines. Does anyone know how to achieve this in web page? text-align: justify seems to produce inferior results than this page, e.g. rivers in text."
+  },
+  {
+    "id": 26770300,
+    "by": "BlueTemplar",
+    "parent": 26767441,
+    "time": 1618148399,
+    "type": "comment",
+    "text": "Taking the title at face value : yeah, you <i>are</i> making a mistake, using GAFAM tools like PyTorch, Github or OpenAI&#x27;s GPTs."
+  },
+  {
+    "id": 26770312,
+    "by": "rockostrich",
+    "parent": 26770285,
+    "time": 1618148492,
+    "type": "comment",
+    "text": "`hypens: auto` is probably it. It allows words to be split with a hypen at the browser&#x27;s discretion."
+  },
+  {
+    "id": 26770412,
+    "by": "qd6pwu4",
+    "parent": 26770312,
+    "time": 1618149503,
+    "type": "comment",
+    "text": "thanks, that seems to be the answer"
+  },
+  {
+    "id": 26770493,
+    "by": "ivoras",
+    "parent": 26767441,
+    "time": 1618150336,
+    "type": "comment",
+    "text": "A lot of comments are criticising the frameworks or the developers, but suprisingly almost no one is criticising Python, which remains a language of the early 90ies as far as parallelism is concerned.<p>A bit like Stockholm syndrome - &quot;Python doesn&#x27;t do threading&quot; is so ingrained in its users (and I&#x27;m a user) minds that it&#x27;s not even questioned as a potential source of problems.<p>(Noone said it&#x27;s easy to do. That&#x27;s why language developers and implementers are a special breed even today.)"
+  },
+  {
+    "id": 26770696,
+    "by": "selimthegrim",
+    "parent": 26767441,
+    "time": 1618152604,
+    "type": "comment",
+    "text": "A less clickbaity title might have been: Bugs are easy to make.  Here\u2019s how to make fewer bugs when modifying existing PyTorch and NumPy code."
+  },
+  {
+    "id": 26770771,
+    "by": "hermitdev",
+    "parent": 26769504,
+    "time": 1618153297,
+    "type": "comment",
+    "text": "&gt; does anyone at all train DL models on Windows?<p>Yes. My last job was at a financial shop that was all Windows. They were doing ML with Python on Windows. Azure has boxes available for this."
+  },
+  {
+    "id": 26770773,
+    "by": "canjobear",
+    "parent": 26767441,
+    "time": 1618153326,
+    "type": "comment",
+    "text": "I usually write my own data handling functions rather than trying to play PyTorch\u2019s game here. I find their abstractions here confusing or not useful."
+  },
+  {
+    "id": 26770786,
+    "by": "king_magic",
+    "parent": 26767441,
+    "time": 1618153466,
+    "type": "comment",
+    "text": "Aside from the infuriating clickbait title (which I shall not dignify with an upvote), this is part of why I preprocess augmented images. I don&#x27;t like too much magic in my custom derived (PyTorch) Dataset objects."
+  },
+  {
+    "id": 26771149,
+    "by": "OskarS",
+    "parent": 26770158,
+    "time": 1618156098,
+    "type": "comment",
+    "text": "Additionally, I think people make a hidden assumption that they don&#x27;t even realize they&#x27;re making: that when you ask for random numbers from numpy, they&#x27;re more or less &quot;true&quot; random numbers, not seeded ones. Like, I think the intention of the programmers is just &quot;give me a bunch of random numbers, I don&#x27;t really care how as long as they&#x27;re random&quot;, and assumes that that is what that numpy function does. But it doesn&#x27;t: it provides you a pseudo-random sequence \u2013 not true randomness \u2013 so of course the sequence is identical after the fork.<p>Like, they think they&#x27;re reading from &#x2F;dev&#x2F;random, but they&#x27;re not: they&#x27;re just running rand() (metaphorically speaking)."
+  },
+  {
+    "id": 26771470,
+    "by": "acdha",
+    "parent": 26771149,
+    "time": 1618158341,
+    "type": "comment",
+    "text": "Definitely - back when I supported a computational neuroscience group that came up multiple times (not numpy but similar contexts), along with the various quirks around floating point math. Even experienced people do things like that because they\u2019re focused on the actual problem and this is a leaky implementation detail."
+  },
+  {
+    "id": 26771650,
+    "by": "andrew_v4",
+    "parent": 26767441,
+    "time": 1618159469,
+    "type": "comment",
+    "text": "Is there something specific about numpy here, or would it be any RNG?<p>I&#x27;m looking at some code that uses random.random() to randomly apply augmentations, I suspect that will have the same issue right?"
+  },
+  {
+    "id": 26771907,
+    "by": "tsimionescu",
+    "parent": 26767441,
+    "time": 1618161807,
+    "type": "comment",
+    "text": "This seems like another reason to never use fork() without exec(). Fork is really a mine field when used this way (and a pretty big maintenance burden on the kernel, by my understanding, to provide the illusion of sharing read-only state with the parent process)."
+  },
+  {
+    "id": 26771956,
+    "by": "_coveredInBees",
+    "parent": 26767922,
+    "time": 1618162200,
+    "type": "comment",
+    "text": "Should be 2**32 above. HN formatting swallowed an asterisk."
+  },
+  {
+    "id": 26773081,
+    "by": "jamesfisher",
+    "parent": 26767441,
+    "time": 1618172620,
+    "type": "comment",
+    "text": "Note official TensorFlow tutorials make the exact same mistake. I&#x27;ve reported it but it hasn&#x27;t been fixed. [1]<p>[1]: <a href=\"https:&#x2F;&#x2F;github.com&#x2F;tensorflow&#x2F;tensorflow&#x2F;issues&#x2F;47755\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;tensorflow&#x2F;tensorflow&#x2F;issues&#x2F;47755</a>"
+  },
+  {
+    "id": 26773344,
+    "by": "nurpax",
+    "parent": 26767922,
+    "time": 1618174586,
+    "type": "comment",
+    "text": "This field contains the worker-specific seed:<p><pre><code>    torch.utils.data.get_worker_info().seed\n</code></pre>\nSo I guess something like the below (untested!) could work too:<p><pre><code>   worker_init_fn=lambda id: np.random.seed(torch.utils.data.get_worker_info().seed)</code></pre>"
+  },
+  {
+    "id": 26774251,
+    "by": "ynik",
+    "parent": 26768326,
+    "time": 1618181378,
+    "type": "comment",
+    "text": "Starting with Python 3.8, multiprocessing will also use new processes by default on MacOS (due to some system libraries not being fork-safe).<p>IMHO cross-platform Python projects should call `multiprocessing.set_start_method(&#x27;spawn&#x27;)` to get the same behavior everywhere."
+  },
+  {
+    "id": 26775626,
+    "by": "Salgat",
+    "parent": 26768929,
+    "time": 1618195205,
+    "type": "comment",
+    "text": "Yeah this isn&#x27;t really a bug or even an issue with the library. If you instantiate an RNG with a seed and then fork your process, well duh of course the RNG will be repeated across the forks."
+  },
+  {
+    "id": 26775634,
+    "by": "Salgat",
+    "parent": 26769349,
+    "time": 1618195287,
+    "type": "comment",
+    "text": "In .NET Core they actually fixed this thank goodness <a href=\"https:&#x2F;&#x2F;stackoverflow.com&#x2F;questions&#x2F;57905143&#x2F;did-microsoft-change-random-default-seed\" rel=\"nofollow\">https:&#x2F;&#x2F;stackoverflow.com&#x2F;questions&#x2F;57905143&#x2F;did-microsoft-c...</a>"
+  },
+  {
+    "id": 26776790,
+    "by": "rurban",
+    "parent": 26768121,
+    "time": 1618212132,
+    "type": "comment",
+    "text": "I have again a different opinion. Allow both: srand() - explicit seed initialization, as well as autoseed.<p>But you really need to change selected known bad seeds, which destroy the PRNG statistical properties. Most PRNG&#x27;s have a couple of known bad seeds, but nobody does anything against it. Same for hash functions."
+  },
+  {
+    "id": 26776809,
+    "by": "rurban",
+    "parent": 26771650,
+    "time": 1618212390,
+    "type": "comment",
+    "text": "It is a well-known trap that forked or threaded RNG&#x27;s keep using the same seed. It can be called a feature, eg when you need to process different ranges, using the same sequence of random numbers for each range, but mostly it&#x27;s a bug. You need to init your rng seed for each thread or fork to get different random sequences.<p>For splitting up sequential ranges, a good rng typically has an advance function to advance the seed for each range. So you can get reproducibility."
+  }
+]

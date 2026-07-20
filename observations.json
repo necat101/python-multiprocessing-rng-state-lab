@@ -1,0 +1,544 @@
+[
+  {
+    "case_id": "runtime_and_start_methods_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {
+      "python_version": "3.12.3",
+      "python_implementation": "CPython",
+      "os_family": "posix",
+      "numpy_available": true,
+      "numpy_version": "2.4.6",
+      "torch_available": false,
+      "torch_version": null,
+      "start_methods": [
+        "fork",
+        "spawn",
+        "forkserver"
+      ],
+      "default_start_method": null,
+      "fork_available": true,
+      "spawn_available": true,
+      "root_seed": 26767441,
+      "worker_count": 4,
+      "draws_per_worker": 6,
+      "interval": [
+        0,
+        1000000
+      ]
+    }
+  },
+  {
+    "case_id": "runtime_and_start_methods_marker",
+    "method": "execute_workers",
+    "expected_classification": "not_applicable",
+    "actual_classification": "not_applicable",
+    "observation": {}
+  },
+  {
+    "case_id": "runtime_and_start_methods_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "not_applicable",
+    "actual_classification": "not_applicable",
+    "observation": {}
+  },
+  {
+    "case_id": "runtime_and_start_methods_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {}
+  },
+  {
+    "case_id": "serial_same_seed_baseline_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "serial_same_seed_baseline_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {
+      "sequences": {
+        "0": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "1": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "2": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "3": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ]
+      }
+    }
+  },
+  {
+    "case_id": "serial_same_seed_baseline_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "expected_duplicate",
+    "actual_classification": "expected_duplicate",
+    "observation": {
+      "all_equal": true
+    }
+  },
+  {
+    "case_id": "serial_same_seed_baseline_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "Constructing multiple generators from the same explicit seed reproduces the same stream by design. Not a multiprocessing bug."
+    }
+  },
+  {
+    "case_id": "fork_legacy_global_state_copy_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "fork_legacy_global_state_copy_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {
+      "worker_count": 4
+    }
+  },
+  {
+    "case_id": "fork_legacy_global_state_copy_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "expected_duplicate",
+    "actual_classification": "expected_duplicate",
+    "observation": {
+      "sequences": {
+        "0": [
+          120151,
+          83054,
+          623106,
+          836639,
+          111033,
+          29042
+        ],
+        "1": [
+          120151,
+          83054,
+          623106,
+          836639,
+          111033,
+          29042
+        ],
+        "2": [
+          120151,
+          83054,
+          623106,
+          836639,
+          111033,
+          29042
+        ],
+        "3": [
+          120151,
+          83054,
+          623106,
+          836639,
+          111033,
+          29042
+        ]
+      }
+    }
+  },
+  {
+    "case_id": "fork_legacy_global_state_copy_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "Children inherited equivalent legacy rng state in this local fork experiment. Not claiming universal behavior."
+    }
+  },
+  {
+    "case_id": "fork_generator_object_copy_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "fork_generator_object_copy_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {}
+  },
+  {
+    "case_id": "fork_generator_object_copy_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "expected_duplicate",
+    "actual_classification": "expected_duplicate",
+    "observation": {
+      "sequences": {
+        "0": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "1": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "2": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "3": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ]
+      }
+    }
+  },
+  {
+    "case_id": "fork_generator_object_copy_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "Explicit generator is easier to reason about, but a generator present before fork can still be copied into children. Generator itself is not defective."
+    }
+  },
+  {
+    "case_id": "fork_worker_id_reseed_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "fork_worker_id_reseed_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {}
+  },
+  {
+    "case_id": "fork_worker_id_reseed_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "expected_distinct",
+    "actual_classification": "expected_distinct",
+    "observation": {
+      "sequences": {
+        "0": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "1": [
+          922522,
+          765590,
+          900227,
+          898459,
+          65561,
+          929690
+        ],
+        "2": [
+          139273,
+          373386,
+          114899,
+          492396,
+          712479,
+          446766
+        ],
+        "3": [
+          94807,
+          219972,
+          21638,
+          658035,
+          122664,
+          92633
+        ]
+      }
+    }
+  },
+  {
+    "case_id": "fork_worker_id_reseed_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {
+      "reproducible": true
+    }
+  },
+  {
+    "case_id": "fork_seedsequence_children_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "fork_seedsequence_children_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {}
+  },
+  {
+    "case_id": "fork_seedsequence_children_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "expected_distinct",
+    "actual_classification": "expected_distinct",
+    "observation": {
+      "sequences": {
+        "0": [
+          345259,
+          896522,
+          231632,
+          118410,
+          194850,
+          748509
+        ],
+        "1": [
+          676189,
+          265862,
+          489371,
+          278393,
+          575061,
+          259656
+        ],
+        "2": [
+          25490,
+          242544,
+          288418,
+          62768,
+          401171,
+          252773
+        ],
+        "3": [
+          485427,
+          696958,
+          70753,
+          462266,
+          861630,
+          846330
+        ]
+      }
+    }
+  },
+  {
+    "case_id": "fork_seedsequence_children_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {
+      "note": "SeedSequence spawning is documented for parallel use; tiny sample does not certify statistical behavior."
+    }
+  },
+  {
+    "case_id": "spawn_same_seed_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_same_seed_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_same_seed_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "expected_duplicate",
+    "actual_classification": "expected_duplicate",
+    "observation": {
+      "sequences": {
+        "0": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "1": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "2": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ],
+        "3": [
+          53085,
+          688760,
+          614418,
+          577760,
+          432738,
+          314652
+        ]
+      }
+    }
+  },
+  {
+    "case_id": "spawn_same_seed_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "Fresh interpreter does not create distinct streams when code supplies same seed to every worker. Not claiming spawn is ineffective."
+    }
+  },
+  {
+    "case_id": "spawn_seedsequence_children_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_seedsequence_children_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_seedsequence_children_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "expected_distinct",
+    "actual_classification": "expected_distinct",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_seedsequence_children_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_repeatability_across_runs_marker",
+    "method": "inspect_environment",
+    "expected_classification": "local_observation",
+    "actual_classification": "local_observation",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_repeatability_across_runs_marker",
+    "method": "execute_workers",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {}
+  },
+  {
+    "case_id": "spawn_repeatability_across_runs_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "pass",
+    "actual_classification": "pass",
+    "observation": {
+      "match": true,
+      "distinct": true
+    }
+  },
+  {
+    "case_id": "spawn_repeatability_across_runs_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "Exact reproducibility across two runs does not prove reproducibility across every numpy version, OS, architecture, or pipeline."
+    }
+  },
+  {
+    "case_id": "no_global_rng_or_ml_validity_claim_marker",
+    "method": "inspect_environment",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "no claim"
+    }
+  },
+  {
+    "case_id": "no_global_rng_or_ml_validity_claim_marker",
+    "method": "execute_workers",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "no claim"
+    }
+  },
+  {
+    "case_id": "no_global_rng_or_ml_validity_claim_marker",
+    "method": "verify_sequence_relation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "no claim"
+    }
+  },
+  {
+    "case_id": "no_global_rng_or_ml_validity_claim_marker",
+    "method": "reproducibility_context_observation",
+    "expected_classification": "context_only",
+    "actual_classification": "context_only",
+    "observation": {
+      "note": "no claim"
+    }
+  }
+]

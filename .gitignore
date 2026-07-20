@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.npy
+*.npz
+*.pkl
+*.pickle
+*evidence*.tmp
+*comparison*.tmp
+worker_scratch/
