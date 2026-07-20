@@ -1,64 +1,46 @@
 # RESULTS
 
-Python: 3.12.3
-
-NumPy available: True
-NumPy version: 2.4.6
-
-PyTorch available: False
-
-Start methods: fork, forkserver, spawn
+Python version: 3.12.3
+NumPy available: True, version: 2.4.6
+PyTorch available: False, version: None
+Start methods: fork, spawn, forkserver
 Root seed: 26767441
-Workers: 4
-Draws per worker: 6
-Cases: 10
-Methods: 4
-Rows: 40
+Workers: 4, draws per worker: 6
+Rows: 40 (10 cases × 4 methods)
 
-## Classification counts
-
-- pass: 25
+## Classification buckets
+- pass: 12
 - expected_duplicate: 4
 - expected_distinct: 3
-- local_observation: 0
+- local_observation: 9
 - platform_skip: 0
 - dependency_skip: 0
-- context_only: 8
-- not_applicable: 0
+- context_only: 10
+- not_applicable: 2
 - fail: 0
 
 ## Observations
+- serial_same_seed_baseline: expected_duplicate
+- fork_legacy_state: expected_duplicate
+- fork_generator_copy: expected_duplicate
+- fork_worker_id_reseed: expected_distinct
+- fork_seedsequence_children: expected_distinct
+- spawn_same_seed: expected_duplicate
+- spawn_seedsequence_children: expected_distinct
+- spawn_repeatability: pass
 
-- Serial same-seed: duplicate sequences observed (expected).
-- Fork legacy RNG: duplicate sequences observed (expected).
-- Fork generator copy: duplicate sequences observed (expected).
-- Fork worker_id reseed: distinct sequences, reproducible.
-- Fork SeedSequence children: distinct sequences, reproducible.
-- Spawn same seed: duplicate sequences observed (expected).
-- Spawn SeedSequence children: distinct sequences, reproducible.
-- Spawn repeatability: pass.
+Platform skips: 0
+Dependency skips: 0
+Failures: 0
 
-## Distinctions
+## What was observed
+- Duplicate sequence observations: serial same-seed, fork legacy global state copy, fork generator object copy, spawn same-seed – all produced identical sequences across workers when deliberately seeded identically or inheriting state via fork.
+- Distinct sequence observations: fork worker-id reseed, fork SeedSequence children, spawn SeedSequence children – all produced pairwise distinct sequences per worker.
+- Repeatability observations: worker-id reseed, SeedSequence children (fork and spawn), and spawn repeatability across runs – sequences were exactly reproducible per worker id across repeated runs.
+- Platform availability: fork=yes, spawn=yes.
+- Dependency availability: numpy=True, torch=False.
 
-- duplicate sequence observations: yes, in deliberately constructed same-seed cases
-- distinct sequence observations: yes, with per-worker SeedSequence
-- repeatability observations: yes, deterministic per worker_id
-- platform availability: fork=True, spawn=True
-- dependency availability: numpy=True, torch=False
-- broader claims not tested: see no_global_rng_or_ml_validity_claim_marker
+## What was NOT tested / disclaimed
+This repository does not prove that every numpy or pytorch program has duplicated rng streams, that historical pytorch behavior remains unchanged today, that fork is the default everywhere, that spawn repairs repeated explicit seeds, that numpy generators are automatically independent after copying, that distinct short sequences are statistically independent, that SeedSequence eliminates every collision risk, that a six-number sample tests rng quality, that duplicated augmentation necessarily changes model accuracy, that different augmentations improve model quality, that a random seed alone guarantees full experimental reproducibility, that one local multiprocessing run validates a production data pipeline, or that the lab is machine-learning validated, statistically certified, universally portable, or production-ready.
 
-## Evidence categories
-
-1. What the linked article claimed in 2021: RNG state duplication via fork in PyTorch DataLoader workers; claimed "over 95%" prevalence – attributed to the article, NOT reproduced by this repository.
-
-2. What Hacker News commenters argued: _coveredInBees (worker seeding easy to get wrong, custom worker_init_fn), nurpax (torch.utils.data.get_worker_info().seed), shoyer (against hidden mutable global RNG, prefer explicit Generator), warsheep (explicit generator state can still be copied by fork), acdha (fork optimization makes RNG init easy to misunderstand), OskarS (programmers treat PRNG as true randomness), timzaman (python/numpy/torch/distributed each need deliberate seeding), jeeeb (unit tests may miss worker-process-only problems), _delirium (fork vs Windows spawn), ynik (macOS changed multiprocessing default, favor explicit start-method), rurban (reseeding workers while preserving reproducibility), anon_tor_12345 (challenged clickbait framing and unsupported "over 95%" claim).
-
-3. What current official Python, NumPy, and PyTorch documentation says: see README.md links (multiprocessing fork/spawn, random, numpy.random.Generator, SeedSequence, parallel RNG, PyTorch data-loading / randomness).
-
-4. What the local installed environment reported: Python 3.12.3 CPython, NumPy 2.4.6, PyTorch not available, OS posix, start_methods fork/forkserver/spawn.
-
-5. What the deterministic lab directly observed: serial same-seed duplicate, fork legacy duplicate, fork generator duplicate, fork worker_id distinct+reproducible, fork SeedSequence distinct+reproducible, spawn same-seed duplicate, spawn SeedSequence distinct+reproducible, spawn repeatability pass.
-
-6. What the lab did NOT test: ML training, RNG statistical quality, security, GPU, full PyTorch DataLoader, production pipeline validation, cross-version reproducibility, statistical independence, model accuracy impact, article's GitHub-scale percentage.
-
-This lab does not prove numpy is unsafe, pytorch dataloaders are broken, RNG quality, ML augmentation validity, article github-wide percentage, statistical independence, full reproducibility, or production-readiness.
+See README.md for Hacker News discussion summary, article attribution, and documentation references.

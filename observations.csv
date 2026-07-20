@@ -5,35 +5,35 @@ runtime_and_start_methods_marker,verify_sequence_relation,not_applicable,not_app
 runtime_and_start_methods_marker,reproducibility_context_observation,context_only,context_only,{}
 serial_same_seed_baseline_marker,inspect_environment,local_observation,local_observation,{}
 serial_same_seed_baseline_marker,execute_workers,pass,pass,"{""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[53085,688760,614418,577760,432738,314652],""2"":[53085,688760,614418,577760,432738,314652],""3"":[53085,688760,614418,577760,432738,314652]}}"
-serial_same_seed_baseline_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""all_equal"":true}"
+serial_same_seed_baseline_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""all_equal"":true,""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[53085,688760,614418,577760,432738,314652],""2"":[53085,688760,614418,577760,432738,314652],""3"":[53085,688760,614418,577760,432738,314652]}}"
 serial_same_seed_baseline_marker,reproducibility_context_observation,context_only,context_only,"{""note"":""Constructing multiple generators from the same explicit seed reproduces the same stream by design. Not a multiprocessing bug.""}"
 fork_legacy_global_state_copy_marker,inspect_environment,local_observation,local_observation,{}
-fork_legacy_global_state_copy_marker,execute_workers,pass,pass,"{""worker_count"":4}"
-fork_legacy_global_state_copy_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""sequences"":{""0"":[120151,83054,623106,836639,111033,29042],""1"":[120151,83054,623106,836639,111033,29042],""2"":[120151,83054,623106,836639,111033,29042],""3"":[120151,83054,623106,836639,111033,29042]}}"
+fork_legacy_global_state_copy_marker,execute_workers,pass,pass,"{""worker_count"":4,""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
+fork_legacy_global_state_copy_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""sequences"":{""0"":[120151,83054,623106,836639,111033,29042],""1"":[120151,83054,623106,836639,111033,29042],""2"":[120151,83054,623106,836639,111033,29042],""3"":[120151,83054,623106,836639,111033,29042]},""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
 fork_legacy_global_state_copy_marker,reproducibility_context_observation,context_only,context_only,"{""note"":""Children inherited equivalent legacy rng state in this local fork experiment. Not claiming universal behavior.""}"
 fork_generator_object_copy_marker,inspect_environment,local_observation,local_observation,{}
-fork_generator_object_copy_marker,execute_workers,pass,pass,{}
-fork_generator_object_copy_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[53085,688760,614418,577760,432738,314652],""2"":[53085,688760,614418,577760,432738,314652],""3"":[53085,688760,614418,577760,432738,314652]}}"
+fork_generator_object_copy_marker,execute_workers,pass,pass,"{""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
+fork_generator_object_copy_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[53085,688760,614418,577760,432738,314652],""2"":[53085,688760,614418,577760,432738,314652],""3"":[53085,688760,614418,577760,432738,314652]},""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
 fork_generator_object_copy_marker,reproducibility_context_observation,context_only,context_only,"{""note"":""Explicit generator is easier to reason about, but a generator present before fork can still be copied into children. Generator itself is not defective.""}"
 fork_worker_id_reseed_marker,inspect_environment,local_observation,local_observation,{}
-fork_worker_id_reseed_marker,execute_workers,pass,pass,{}
-fork_worker_id_reseed_marker,verify_sequence_relation,expected_distinct,expected_distinct,"{""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[922522,765590,900227,898459,65561,929690],""2"":[139273,373386,114899,492396,712479,446766],""3"":[94807,219972,21638,658035,122664,92633]}}"
+fork_worker_id_reseed_marker,execute_workers,pass,pass,"{""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0},""entropies"":{""0"":[26767441,0],""1"":[26767441,1],""2"":[26767441,2],""3"":[26767441,3]},""spawn_keys"":{""0"":[],""1"":[],""2"":[],""3"":[]}}"
+fork_worker_id_reseed_marker,verify_sequence_relation,expected_distinct,expected_distinct,"{""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[922522,765590,900227,898459,65561,929690],""2"":[139273,373386,114899,492396,712479,446766],""3"":[94807,219972,21638,658035,122664,92633]},""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0},""entropies"":{""0"":[26767441,0],""1"":[26767441,1],""2"":[26767441,2],""3"":[26767441,3]},""spawn_keys"":{""0"":[],""1"":[],""2"":[],""3"":[]}}"
 fork_worker_id_reseed_marker,reproducibility_context_observation,pass,pass,"{""reproducible"":true}"
 fork_seedsequence_children_marker,inspect_environment,local_observation,local_observation,{}
-fork_seedsequence_children_marker,execute_workers,pass,pass,{}
-fork_seedsequence_children_marker,verify_sequence_relation,expected_distinct,expected_distinct,"{""sequences"":{""0"":[345259,896522,231632,118410,194850,748509],""1"":[676189,265862,489371,278393,575061,259656],""2"":[25490,242544,288418,62768,401171,252773],""3"":[485427,696958,70753,462266,861630,846330]}}"
+fork_seedsequence_children_marker,execute_workers,pass,pass,"{""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0},""entropies"":{""0"":26767441,""1"":26767441,""2"":26767441,""3"":26767441},""spawn_keys"":{""0"":[0],""1"":[1],""2"":[2],""3"":[3]}}"
+fork_seedsequence_children_marker,verify_sequence_relation,expected_distinct,expected_distinct,"{""sequences"":{""0"":[345259,896522,231632,118410,194850,748509],""1"":[676189,265862,489371,278393,575061,259656],""2"":[25490,242544,288418,62768,401171,252773],""3"":[485427,696958,70753,462266,861630,846330]},""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0},""entropies"":{""0"":26767441,""1"":26767441,""2"":26767441,""3"":26767441},""spawn_keys"":{""0"":[0],""1"":[1],""2"":[2],""3"":[3]}}"
 fork_seedsequence_children_marker,reproducibility_context_observation,pass,pass,"{""note"":""SeedSequence spawning is documented for parallel use; tiny sample does not certify statistical behavior.""}"
 spawn_same_seed_marker,inspect_environment,local_observation,local_observation,{}
-spawn_same_seed_marker,execute_workers,pass,pass,{}
-spawn_same_seed_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[53085,688760,614418,577760,432738,314652],""2"":[53085,688760,614418,577760,432738,314652],""3"":[53085,688760,614418,577760,432738,314652]}}"
+spawn_same_seed_marker,execute_workers,pass,pass,"{""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
+spawn_same_seed_marker,verify_sequence_relation,expected_duplicate,expected_duplicate,"{""sequences"":{""0"":[53085,688760,614418,577760,432738,314652],""1"":[53085,688760,614418,577760,432738,314652],""2"":[53085,688760,614418,577760,432738,314652],""3"":[53085,688760,614418,577760,432738,314652]},""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
 spawn_same_seed_marker,reproducibility_context_observation,context_only,context_only,"{""note"":""Fresh interpreter does not create distinct streams when code supplies same seed to every worker. Not claiming spawn is ineffective.""}"
 spawn_seedsequence_children_marker,inspect_environment,local_observation,local_observation,{}
-spawn_seedsequence_children_marker,execute_workers,pass,pass,{}
-spawn_seedsequence_children_marker,verify_sequence_relation,expected_distinct,expected_distinct,{}
-spawn_seedsequence_children_marker,reproducibility_context_observation,pass,pass,{}
+spawn_seedsequence_children_marker,execute_workers,pass,pass,"{""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0},""entropies"":{""0"":26767441,""1"":26767441,""2"":26767441,""3"":26767441},""spawn_keys"":{""0"":[0],""1"":[1],""2"":[2],""3"":[3]}}"
+spawn_seedsequence_children_marker,verify_sequence_relation,expected_distinct,expected_distinct,"{""sequences"":{""0"":[345259,896522,231632,118410,194850,748509],""1"":[676189,265862,489371,278393,575061,259656],""2"":[25490,242544,288418,62768,401171,252773],""3"":[485427,696958,70753,462266,861630,846330]},""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0},""entropies"":{""0"":26767441,""1"":26767441,""2"":26767441,""3"":26767441},""spawn_keys"":{""0"":[0],""1"":[1],""2"":[2],""3"":[3]}}"
+spawn_seedsequence_children_marker,reproducibility_context_observation,pass,pass,"{""exit_codes"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
 spawn_repeatability_across_runs_marker,inspect_environment,local_observation,local_observation,{}
-spawn_repeatability_across_runs_marker,execute_workers,pass,pass,{}
-spawn_repeatability_across_runs_marker,verify_sequence_relation,pass,pass,"{""match"":true,""distinct"":true}"
+spawn_repeatability_across_runs_marker,execute_workers,pass,pass,"{""exit_codes_run1"":{""0"":0,""1"":0,""2"":0,""3"":0},""exit_codes_run2"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
+spawn_repeatability_across_runs_marker,verify_sequence_relation,pass,pass,"{""match"":true,""distinct"":true,""run1_sequences"":{""0"":[345259,896522,231632,118410,194850,748509],""1"":[676189,265862,489371,278393,575061,259656],""2"":[25490,242544,288418,62768,401171,252773],""3"":[485427,696958,70753,462266,861630,846330]},""run2_sequences"":{""0"":[345259,896522,231632,118410,194850,748509],""1"":[676189,265862,489371,278393,575061,259656],""2"":[25490,242544,288418,62768,401171,252773],""3"":[485427,696958,70753,462266,861630,846330]},""exit_codes_run1"":{""0"":0,""1"":0,""2"":0,""3"":0},""exit_codes_run2"":{""0"":0,""1"":0,""2"":0,""3"":0}}"
 spawn_repeatability_across_runs_marker,reproducibility_context_observation,context_only,context_only,"{""note"":""Exact reproducibility across two runs does not prove reproducibility across every numpy version, OS, architecture, or pipeline.""}"
 no_global_rng_or_ml_validity_claim_marker,inspect_environment,context_only,context_only,"{""note"":""no claim""}"
 no_global_rng_or_ml_validity_claim_marker,execute_workers,context_only,context_only,"{""note"":""no claim""}"
